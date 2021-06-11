@@ -118,25 +118,21 @@ const Game = (() => {
     return same;
   }
 
-  const checkHorizontal = function (gameBoard, mark) {
-    let winHorizontally = false;
-
+  const checkStraight = function (gameBoard, mark) {
+    let winning = false;
     for (let x = 0; x < gameBoard.length; x++) {
-      if (same(gameBoard[x], mark)) winHorizontally = true;
+      if (same(gameBoard[x], mark)) winning = true;
     }
+    return winning;
+  }
 
-    return winHorizontally;
+  const checkHorizontal = function (gameBoard, mark) {
+    return checkStraight(gameBoard, mark);
   }
 
   const checkVertical = function (gameBoard, mark) {
-    let winVertically = false;
-
     let transposedBoard = GameBoard.transpose(gameBoard);
-    for (let x = 0; x < transposedBoard.length; x++) {
-      if (same(transposedBoard[x], mark)) winVertically = true;
-    }
-
-    return winVertically;
+    return checkStraight(transposedBoard, mark);
   }
 
   const checkWinner = function (gameBoard, mark) {
