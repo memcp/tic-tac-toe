@@ -30,16 +30,21 @@ const GameBoard = (() => {
     return document.querySelectorAll('.game-board__cell');
   }
 
+  const createCellElement = function (x, y) {
+    const cellElement = document.createElement('div');
+    cellElement.classList.add('game-board__cell');
+    cellElement.textContent = gameBoard[x][y];
+    cellElement.x = x;
+    cellElement.y = y;
+    return cellElement;
+  }
+
   const display = function() {
     const boardElement = document.querySelector('.game-board');
 
     for (let x = 0; x < BOARD_SIZE; x++) {
       for (let y = 0; y < BOARD_SIZE; y++) {
-        const cellElement = document.createElement('div');
-        cellElement.classList.add('game-board__cell');
-        cellElement.textContent = gameBoard[x][y];
-        cellElement.x = x;
-        cellElement.y = y;
+        const cellElement = createCellElement(x, y);
         boardElement.appendChild(cellElement);
       }
     }
