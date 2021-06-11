@@ -40,6 +40,26 @@ const GameBoard = (() => {
     return temp;
   }
 
+  const primaryDiagonal = function () {
+    let diagonal = []
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      for (let y = 0; y < BOARD_SIZE; y++) {
+        if (x === y) diagonal.push(gameBoard[x][y]);
+      }
+    }
+    return diagonal;
+  }
+
+  const secondaryDiagonal = function () {
+    let diagonal = []
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      for (let y = 0; y < BOARD_SIZE; y++) {
+        if (x + y === BOARD_SIZE - 1) diagonal.push(gameBoard[x][y]);
+      }
+    }
+    return diagonal;
+  }
+
   const update = function(x, y, value) {
     cellElements.forEach(cellElement => {
       if (cellElement.x === x && cellElement.y === y) cellElement.textContent = value;
@@ -77,7 +97,7 @@ const GameBoard = (() => {
     cellElements = document.querySelectorAll('.game-board__cell');
   }
 
-  return { init, display, update, getCellElements, getGameBoard, transpose }
+  return { init, display, update, getCellElements, getGameBoard, transpose, primaryDiagonal, secondaryDiagonal  }
 })();
 
 const Player = (name) => {
@@ -95,19 +115,11 @@ const Game = (() => {
   const player2 = Player('second');
   let playerOneTurn = true;
 
-  // todo fix to work with big boards, not limited to three cells
   const checkDiagonals = function (gameBoard, mark) {
-    let winDiagonally = false;
+    let winByPrimaryDiagonal = same(GameBoard.primaryDiagonal(), mark);
+    let winBySecondaryDiagonal = same(GameBoard.secondaryDiagonal(), mark);
 
-    for (let x = 1; x < gameBoard.length - 1; x++) {
-      for (let y = 1; y < gameBoard.length - 1; y++) {
-        let winByMainDiagonal = gameBoard[x][y] === mark && gameBoard[x + 1][y + 1] === mark && gameBoard[x - 1][y - 1] === mark;
-        let winByMinorDiagonal = gameBoard[x][y] === mark && gameBoard[x - 1][y + 1] === mark && gameBoard[x + 1][y - 1] === mark;
-        winDiagonally = x === y && (winByMainDiagonal || winByMinorDiagonal);
-      }
-    }
-
-    return winDiagonally;
+    return winByPrimaryDiagonal || winBySecondaryDiagonal;
   }
 
   const same = function (row, mark) {
