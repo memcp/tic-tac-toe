@@ -23,7 +23,16 @@ const GameBoard = (() => {
   }
 
   const display = function () {
-    console.log(gameBoard);
+    const boardElement = document.querySelector('.game-board');
+
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      for (let y = 0; y < BOARD_SIZE; y++) {
+        const cellElement = document.createElement('div');
+        cellElement.classList.add('game-board__cell');
+        cellElement.textContent = gameBoard[x][y];
+        boardElement.appendChild(cellElement);
+      }
+    }
   }
 
   return { init, display, update }
@@ -42,6 +51,7 @@ const Player = (name) => {
 const Game = (() => {
   const player1 = Player('first');
   const player2 = Player('second');
+
 
   const start = function() {
     GameBoard.init();
