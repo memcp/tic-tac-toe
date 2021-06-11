@@ -1,5 +1,5 @@
 const GameBoard = (() => {
-  const BOARD_SIZE = 3;
+  const BOARD_SIZE = 4;
   let cellElements;
   let gameBoard;
 
@@ -19,11 +19,29 @@ const GameBoard = (() => {
     }
   };
 
+  const transpose = function (gameBoard) {
+    let temp = new Array(BOARD_SIZE);
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      temp[x] = new Array(BOARD_SIZE);
+    }
+
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      for (let y = 0; y < BOARD_SIZE; y++) {
+        temp[x][y] = gameBoard[y][x];
+      }
+    }
+    return temp;
+  }
+
   const update = function(x, y, value) {
     cellElements.forEach(cellElement => {
       if (cellElement.x === x && cellElement.y === y) cellElement.textContent = value;
     })
     gameBoard[x][y] = value;
+  }
+
+  const getGameBoard = function () {
+    return gameBoard;
   }
 
   const getCellElements = function() {
@@ -52,7 +70,7 @@ const GameBoard = (() => {
     cellElements = document.querySelectorAll('.game-board__cell');
   }
 
-  return { init, display, update, getCellElements }
+  return { init, display, update, getCellElements, getGameBoard, transpose }
 })();
 
 const Player = (name) => {
@@ -68,15 +86,88 @@ const Player = (name) => {
 const Game = (() => {
   const player1 = Player('first');
   const player2 = Player('second');
+  let playerOneTurn = true;
+
+  // todo fix to work with big boards, not limited to three cells
+  const checkDiagonals = function (gameBoard, mark) {
+    let winDiagonally = false;
+
+    for (let x = 1; x < gameBoard.length - 1; x++) {
+      for (let y = 1; y < gameBoard.length - 1; y++) {
+        let winByMainDiagonal = gameBoard[x][y] === mark && gameBoard[x + 1][y + 1] === mark && gameBoard[x - 1][y - 1] === mark;
+        let winByMinorDiagonal = gameBoard[x][y] === mark && gameBoard[x - 1][y + 1] === mark && gameBoard[x + 1][y - 1] === mark;
+        winDiagonally = x === y && (winByMainDiagonal || winByMinorDiagonal);
+      }
+    }
+
+    return winDiagonally;
+  }
+
+  const same = function (row, mark) {
+    let same = true;
+    for (let i = 0; i < row.length; i++) {
+      if (row[i] !== mark) same = false;
+    }
+    return same;
+  }
+
+  const checkHorizontal = function (gameBoard, mark) {
+    let winHorizontally = false;
+
+    for (let x = 0; x < gameBoard.length; x++) {
+      if (same(gameBoard[x], mark)) winHorizontally = true;
+    }
+
+    return winHorizontally;
+  }
+
+  const checkVertical = function (gameBoard, mark) {
+    let winVertically = false;
+
+    let transposedBoard = GameBoard.transpose(gameBoard);
+    for (let x = 0; x < transposedBoard.length; x++) {
+      if (same(transposedBoard[x], mark)) winVertically = true;
+    }
+
+    return winVertically;
+  }
+
+  const checkWinner = function (gameBoard, mark) {
+    let winDiagonally = checkDiagonals(gameBoard, mark);
+    let winHorizontally = checkHorizontal(gameBoard, mark);
+    let winVertically = checkVertical(gameBoard, mark);
+
+    return winDiagonally || winHorizontally || winVertically;
+  }
+
+
+  const isEmpty = function (cell) {
+    return cell.textContent === '';
+  }
 
   const handlePlayersClicks = function() {
     const cells = GameBoard.getCellElements();
 
     cells.forEach(cell => {
       cell.addEventListener('click', e => {
-        player1.mark(cell.x, cell.y, 'o');
+        const gameBoard = GameBoard.getGameBoard()
+        if(isEmpty(cell)) {
+          if (playerOneTurn) {
+            player1.mark(cell.x, cell.y, 'o');
+            if (checkWinner(gameBoard, 'o')) {
+              console.log('Player 1 is winner');
+            }
+            playerOneTurn = false;
+          } else {
+            player2.mark(cell.x, cell.y, 'x');
+            if (checkWinner(gameBoard, 'x')) {
+              console.log('Player 2 is winner');
+            }
+            playerOneTurn = true;
+          }
+        }
       })
-    })
+    });
   }
 
   const start = function() {
@@ -85,9 +176,6 @@ const Game = (() => {
     handlePlayersClicks();
   }
 
-  const detectWinner = function() {
-
-  }
   return { start }
 })();
 
