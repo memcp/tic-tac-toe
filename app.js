@@ -9,6 +9,7 @@ const GameBoard = (() => {
       gameBoard[x] = new Array(BOARD_SIZE);
     }
     fill('');
+    changeGridRules();
   };
 
   const fill = function(value) {
@@ -18,6 +19,12 @@ const GameBoard = (() => {
       }
     }
   };
+
+  const changeGridRules = function () {
+    const boardElement = document.querySelector('.game-board');
+    boardElement.style.gridTemplateColumns = `repeat(${BOARD_SIZE}, 0fr)`
+    boardElement.style.gridTemplateRows = `repeat(${BOARD_SIZE}, 0fr)`
+  }
 
   const transpose = function (gameBoard) {
     let temp = new Array(BOARD_SIZE);
