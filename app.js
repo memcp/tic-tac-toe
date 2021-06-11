@@ -1,13 +1,13 @@
 const GameBoard = (() => {
   const BOARD_SIZE = 4;
+  const PRIMARY_DIAGONAL_DIRECTION = 1;
+  const SECONDARY_DIAGONAL_DIRECTION = -1;
+
   let cellElements;
   let gameBoard;
 
   const init = function() {
-    gameBoard = new Array(BOARD_SIZE);
-    for (let x = 0; x < BOARD_SIZE; x++) {
-      gameBoard[x] = new Array(BOARD_SIZE);
-    }
+    gameBoard = create2DArray();
     fill('');
     changeGridRules();
   };
@@ -20,6 +20,14 @@ const GameBoard = (() => {
     }
   };
 
+  const create2DArray = function () {
+    let temp = new Array(BOARD_SIZE);
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      temp[x] = new Array(BOARD_SIZE);
+    }
+    return temp;
+  }
+
   const changeGridRules = function () {
     const boardElement = document.querySelector('.game-board');
     boardElement.style.gridTemplateColumns = `repeat(${BOARD_SIZE}, 0fr)`
@@ -27,11 +35,7 @@ const GameBoard = (() => {
   }
 
   const transpose = function (gameBoard) {
-    let temp = new Array(BOARD_SIZE);
-    for (let x = 0; x < BOARD_SIZE; x++) {
-      temp[x] = new Array(BOARD_SIZE);
-    }
-
+    let temp = create2DArray();
     for (let x = 0; x < BOARD_SIZE; x++) {
       for (let y = 0; y < BOARD_SIZE; y++) {
         temp[x][y] = gameBoard[y][x];
@@ -40,24 +44,26 @@ const GameBoard = (() => {
     return temp;
   }
 
-  const primaryDiagonal = function () {
-    let diagonal = []
+  const getDiagonal = function (direction) {
+    let diagonal = [];
     for (let x = 0; x < BOARD_SIZE; x++) {
       for (let y = 0; y < BOARD_SIZE; y++) {
-        if (x === y) diagonal.push(gameBoard[x][y]);
+        if (direction === PRIMARY_DIAGONAL_DIRECTION) {
+          if (x === y) diagonal.push(gameBoard[x][y]);
+        } else if (direction === SECONDARY_DIAGONAL_DIRECTION) {
+          if (x + y === BOARD_SIZE - 1) diagonal.push(gameBoard[x][y]);
+        }
       }
     }
     return diagonal;
   }
 
+  const primaryDiagonal = function () {
+    return getDiagonal(PRIMARY_DIAGONAL_DIRECTION);
+  }
+
   const secondaryDiagonal = function () {
-    let diagonal = []
-    for (let x = 0; x < BOARD_SIZE; x++) {
-      for (let y = 0; y < BOARD_SIZE; y++) {
-        if (x + y === BOARD_SIZE - 1) diagonal.push(gameBoard[x][y]);
-      }
-    }
-    return diagonal;
+    return getDiagonal(SECONDARY_DIAGONAL_DIRECTION);;
   }
 
   const update = function(x, y, value) {
