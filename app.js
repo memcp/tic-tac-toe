@@ -1,5 +1,6 @@
 const GameBoard = (() => {
   const BOARD_SIZE = 3;
+  let cellElements;
   let gameBoard;
 
   const init = function() {
@@ -19,6 +20,9 @@ const GameBoard = (() => {
   };
 
   const update = function(x, y, value) {
+    cellElements.forEach(cellElement => {
+      if (cellElement.x === x && cellElement.y === y) cellElement.textContent = value;
+    })
     gameBoard[x][y] = value;
   }
 
@@ -39,9 +43,11 @@ const GameBoard = (() => {
         boardElement.appendChild(cellElement);
       }
     }
+
+    cellElements = document.querySelectorAll('.game-board__cell');
   }
 
-  return { init, display, update }
+  return { init, display, update, getCellElements }
 })();
 
 const Player = (name) => {
@@ -58,11 +64,20 @@ const Game = (() => {
   const player1 = Player('first');
   const player2 = Player('second');
 
+  const handlePlayersClicks = function() {
+    const cells = GameBoard.getCellElements();
+
+    cells.forEach(cell => {
+      cell.addEventListener('click', e => {
+        player1.mark(cell.x, cell.y, 'o');
+      })
+    })
+  }
+
   const start = function() {
     GameBoard.init();
     GameBoard.display();
-
-
+    handlePlayersClicks();
   }
 
   const detectWinner = function() {
