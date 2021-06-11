@@ -103,22 +103,40 @@ const GameBoard = (() => {
     cellElements = document.querySelectorAll('.game-board__cell');
   }
 
-  return { init, display, update, getCellElements, getGameBoard, transpose, primaryDiagonal, secondaryDiagonal  }
-})();
-
-const Player = (name) => {
-  const scores = 0;
-
-  const mark = function(x, y, marker) {
-    GameBoard.update(x, y, marker);
+  const isFull = function () {
+    let isFull = true;
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      for (let y = 0; y < BOARD_SIZE; y++) {
+        if (gameBoard[x][y] === '') return false;
+      }
+    }
+    return isFull;
   }
 
-  return { mark }
+  return { init, display, update, getCellElements, getGameBoard, transpose, primaryDiagonal, secondaryDiagonal, isFull }
+})();
+
+const Player = (name, marker) => {
+  const _marker = marker;
+
+  const mark = function(x, y) {
+    GameBoard.update(x, y, _marker);
+  }
+
+  const getName = function () {
+    return name;
+  }
+
+  const getMarker = function () {
+    return marker;
+  }
+
+  return { mark, getName, getMarker }
 }
 
 const Game = (() => {
-  const player1 = Player('first');
-  const player2 = Player('second');
+  const player1 = Player('first', 'o');
+  const player2 = Player('second', 'x');
   let playerOneTurn = true;
 
   const checkDiagonals = function (gameBoard, mark) {
@@ -153,17 +171,24 @@ const Game = (() => {
     return checkStraight(transposedBoard, mark);
   }
 
-  const checkWinner = function (gameBoard, mark) {
-    let winDiagonally = checkDiagonals(gameBoard, mark);
-    let winHorizontally = checkHorizontal(gameBoard, mark);
-    let winVertically = checkVertical(gameBoard, mark);
+  const checkWinner = function (gameBoard, marker) {
+    let winDiagonally = checkDiagonals(gameBoard, marker);
+    let winHorizontally = checkHorizontal(gameBoard, marker);
+    let winVertically = checkVertical(gameBoard, marker);
 
     return winDiagonally || winHorizontally || winVertically;
   }
 
-
   const isEmpty = function (cell) {
     return cell.textContent === '';
+  }
+
+  const congratsWinner = function (player) {
+    console.log(`Player ${player.getName()} wins, played with "${player.getMarker()}"`);
+  }
+
+  const tie = function () {
+    console.log(`It's tie`);
   }
 
   const handlePlayersClicks = function() {
@@ -171,19 +196,17 @@ const Game = (() => {
 
     cells.forEach(cell => {
       cell.addEventListener('click', e => {
-        const gameBoard = GameBoard.getGameBoard()
+        const gameBoard = GameBoard.getGameBoard();
         if(isEmpty(cell)) {
           if (playerOneTurn) {
-            player1.mark(cell.x, cell.y, 'o');
-            if (checkWinner(gameBoard, 'o')) {
-              console.log('Player 1 is winner');
-            }
+            player1.mark(cell.x, cell.y);
+            if (checkWinner(gameBoard, player1.getMarker())) congratsWinner(player1);
+            if (GameBoard.isFull()) tie();
             playerOneTurn = false;
           } else {
-            player2.mark(cell.x, cell.y, 'x');
-            if (checkWinner(gameBoard, 'x')) {
-              console.log('Player 2 is winner');
-            }
+            player2.mark(cell.x, cell.y);
+            if (checkWinner(gameBoard, player2.getMarker())) congratsWinner(player2)
+            if (GameBoard.isFull()) tie();
             playerOneTurn = true;
           }
         }
