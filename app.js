@@ -2,7 +2,7 @@ const GameBoard = (() => {
   const BOARD_SIZE = 3;
   let gameBoard;
 
-  const init = function () {
+  const init = function() {
     gameBoard = new Array(BOARD_SIZE);
     for (let x = 0; x < BOARD_SIZE; x++) {
       gameBoard[x] = new Array(BOARD_SIZE);
@@ -10,7 +10,7 @@ const GameBoard = (() => {
     fill('');
   };
 
-  const fill = function (value) {
+  const fill = function(value) {
     for (let x = 0; x < BOARD_SIZE; x++) {
       for (let y = 0; y < BOARD_SIZE; y++) {
         gameBoard[x][y] = value;
@@ -18,11 +18,15 @@ const GameBoard = (() => {
     }
   };
 
-  const update = function (x, y, value) {
+  const update = function(x, y, value) {
     gameBoard[x][y] = value;
   }
 
-  const display = function () {
+  const getCellElements = function() {
+    return document.querySelectorAll('.game-board__cell');
+  }
+
+  const display = function() {
     const boardElement = document.querySelector('.game-board');
 
     for (let x = 0; x < BOARD_SIZE; x++) {
@@ -30,6 +34,8 @@ const GameBoard = (() => {
         const cellElement = document.createElement('div');
         cellElement.classList.add('game-board__cell');
         cellElement.textContent = gameBoard[x][y];
+        cellElement.x = x;
+        cellElement.y = y;
         boardElement.appendChild(cellElement);
       }
     }
@@ -41,7 +47,7 @@ const GameBoard = (() => {
 const Player = (name) => {
   const scores = 0;
 
-  const mark = function (x, y, marker) {
+  const mark = function(x, y, marker) {
     GameBoard.update(x, y, marker);
   }
 
@@ -52,10 +58,11 @@ const Game = (() => {
   const player1 = Player('first');
   const player2 = Player('second');
 
-
   const start = function() {
     GameBoard.init();
     GameBoard.display();
+
+
   }
 
   const detectWinner = function() {
