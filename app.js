@@ -191,6 +191,17 @@ const Game = (() => {
     console.log(`It's tie`);
   }
 
+  const switchTurn = function () {
+    playerOneTurn = !playerOneTurn;
+  }
+
+  function checkGameRules(cell, gameBoard, player) {
+    player.mark(cell.x, cell.y);
+    if (checkWinner(gameBoard, player.getMarker())) congratsWinner(player);
+    if (GameBoard.isFull()) tie();
+    switchTurn();
+  }
+
   const handlePlayersClicks = function() {
     const cells = GameBoard.getCellElements();
 
@@ -199,15 +210,9 @@ const Game = (() => {
         const gameBoard = GameBoard.getGameBoard();
         if(isEmpty(cell)) {
           if (playerOneTurn) {
-            player1.mark(cell.x, cell.y);
-            if (checkWinner(gameBoard, player1.getMarker())) congratsWinner(player1);
-            if (GameBoard.isFull()) tie();
-            playerOneTurn = false;
+            checkGameRules(cell, gameBoard, player1);
           } else {
-            player2.mark(cell.x, cell.y);
-            if (checkWinner(gameBoard, player2.getMarker())) congratsWinner(player2)
-            if (GameBoard.isFull()) tie();
-            playerOneTurn = true;
+            checkGameRules(cell, gameBoard, player2);
           }
         }
       })
