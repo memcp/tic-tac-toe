@@ -113,7 +113,21 @@ const GameBoard = (() => {
     return isFull;
   }
 
-  return { init, display, update, getCellElements, getGameBoard, transpose, primaryDiagonal, secondaryDiagonal, isFull }
+  const clear = function () {
+    const boardElement = document.querySelector('.game-board');
+    boardElement.textContent = '';
+
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      for (let y = 0; y < BOARD_SIZE; y++) {
+        gameBoard[x][y] = '';
+      }
+    }
+  }
+
+  return {
+    init, display, update, getCellElements, getGameBoard, transpose, primaryDiagonal, secondaryDiagonal, isFull,
+    clear
+  }
 })();
 
 const Player = (name, marker) => {
@@ -183,12 +197,20 @@ const Game = (() => {
     return cell.textContent === '';
   }
 
-  const congratsWinner = function (player) {
-    console.log(`Player ${player.getName()} wins, played with "${player.getMarker()}"`);
+  const congratsWinner = function (player, cb) {
+    const startGameButton = document.querySelector('.start-game');
+    const winnerElement = document.querySelector('.winner');
+    winnerElement.textContent = cb(player)
+    winnerElement.style.display = 'block';
+    startGameButton.textContent = 'Restart Game';
+  }
+
+  const win = function (player) {
+    return `Player ${player.getName()} wins, played with "${player.getMarker()}"`;
   }
 
   const tie = function () {
-    console.log(`It's tie`);
+    return `It's tie`;
   }
 
   const switchTurn = function () {
@@ -197,8 +219,12 @@ const Game = (() => {
 
   function checkGameRules(cell, gameBoard, player) {
     player.mark(cell.x, cell.y);
-    if (checkWinner(gameBoard, player.getMarker())) congratsWinner(player);
-    if (GameBoard.isFull()) tie();
+    if (checkWinner(gameBoard, player.getMarker())) {
+      congratsWinner(player, win);
+    }
+    if (GameBoard.isFull()) {
+      congratsWinner(null, tie);
+    }
     switchTurn();
   }
 
@@ -228,4 +254,11 @@ const Game = (() => {
   return { start }
 })();
 
-Game.start();
+const startGameButton = document.querySelector('.start-game');
+
+startGameButton.addEventListener('click', () => {
+  const winnerElement = document.querySelector('.winner');
+  winnerElement.style.display = 'none';
+  if (GameBoard.getGameBoard()) GameBoard.clear();
+  Game.start();
+})
